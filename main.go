@@ -93,6 +93,10 @@ func handleFind(w http.ResponseWriter, req *http.Request, ps httprouter.Params) 
 	slug := ps.ByName("slug")
 	// get url from  redis client
 	url, err := client.Find(slug)
+	if err == cli.ErrKeyNotFound {
+		http.Error(w, err.Error(), 404)
+		return
+	}
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
