@@ -9,6 +9,11 @@ import (
 	"github.com/go-redis/redis"
 )
 
+var (
+	ErrKeyNotFound = errors.New("Redis does not contain key")
+	ErrInvalidURL  = errors.New("Not a valid url")
+)
+
 type Client struct {
 	cli *redis.Client
 }
@@ -50,7 +55,7 @@ func (client *Client) Find(id string) (string, error) {
 
 	// does not contain key
 	if err == redis.Nil {
-		return "", errors.New("Redis does not contain key")
+		return "", ErrKeyNotFound
 	}
 
 	// error
@@ -68,9 +73,8 @@ func (client *Client) Set(url string) (string, error) {
 	//check validity of url
 	_, err := u.ParseRequestURI(url)
 	if err != nil {
-		return "", errors.New("Not a valid url")
+		return "", ErrInvalidURL
 	}
-
 	var (
 		cli = client.cli
 		//decode value, shorten url
