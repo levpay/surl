@@ -75,9 +75,16 @@ func handleSet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	resp.Short, err = client.Set(resp.URL)
-	if err != nil {
-        log.Println("set redis client: ", err)
+	resp.Short, err := client.Find(slug)
+	if err == cli.ErrKeyNotFound {
+		resp.Short, err = client.Set(resp.URL)
+		if err != nil {
+        	log.Println("set redis client: ", err)
+			http.Error(w, err.Error(), 500)
+			return
+		}
+	} else if err != nil {
+		log.Println("get redis client: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -103,6 +110,7 @@ func handleFind(w http.ResponseWriter, req *http.Request, ps httprouter.Params) 
 		return
 	}
 	if err != nil {
+		log.Println("get redis client: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
