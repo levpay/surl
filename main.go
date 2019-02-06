@@ -75,7 +75,7 @@ func handleSet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	resp.Short, err := client.Find(slug)
+	resp.Short, err = client.Find(resp.URL)
 	if err == cli.ErrKeyNotFound {
 		resp.Short, err = client.Set(resp.URL)
 		if err != nil {
