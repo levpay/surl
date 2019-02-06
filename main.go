@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"log"
 
 	"github.com/julienschmidt/httprouter"
 	cli "github.com/levpay/surl/redis"
@@ -62,6 +63,7 @@ func handleSet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
+        log.Println("body, request: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -69,16 +71,19 @@ func handleSet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	//struct request json format
 	err = json.Unmarshal(b, resp)
 	if err != nil {
+        log.Println("json to struct: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
 	resp.Short, err = client.Set(resp.URL)
 	if err != nil {
+        log.Println("set redis client: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
 	e, err := json.Marshal(resp)
 	if err != nil {
+        log.Println("struct to json: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
