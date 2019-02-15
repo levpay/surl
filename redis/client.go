@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	u "net/url"
 
+    "github.com/rs/xid"
 	"github.com/go-redis/redis"
 )
 
@@ -75,11 +76,11 @@ func (client *Client) Set(url string) (string, error) {
 	if err != nil {
 		return "", ErrInvalidURL
 	}
-	var (
-		cli = client.cli
-		//decode value, shorten url
-		val = generateSlug()
-	)
+
+    cli := client.cli
+    guid := xid.New()
+    //decode value, shorten url
+    val := guid.String()
 
 	//set key-value to redis client
 	err = cli.Set(val, url, 0).Err() //set no expire-time
@@ -91,7 +92,7 @@ func (client *Client) Set(url string) (string, error) {
 	return val, nil
 }
 
-//generate 6 byte slug
+//generate 6 byte slug - deprecate change to xid
 func generateSlug() string {
 	slug := make([]byte, 6)
 	//base58
