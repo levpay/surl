@@ -10,7 +10,7 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	cli "github.com/levpay/surl/redis"
-	redis "gopkg.in/redis.v5"
+	"github.com/go-redis/redis"
 )
 
 var client *cli.Client
