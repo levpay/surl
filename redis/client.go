@@ -21,18 +21,20 @@ type Client struct {
 
 //Custom config
 type Config struct {
-	Addr     string
-	Password string
-	DB       int
+	Addr       string
+	Password   string
+	DB         int
+    MaxRetries int
 }
 
 //create redis client
 func NewClient(config *Config) (*Client, error) {
 
 	cli := redis.NewClient(&redis.Options{
-		Addr:     config.Addr,
-		Password: config.Password,
-		DB:       0, //DEFAULT
+		Addr:       config.Addr,
+		Password:   config.Password,
+		DB:         0, //DEFAULT
+        MaxRetries: config.MaxRetries,
 	})
 
 	client := &Client{cli}

@@ -28,16 +28,16 @@ func init() {
 	}
 	opt, err := redis.ParseURL(REDIS_URL)
 	client, err = cli.NewClient(&cli.Config{
-		Addr:     opt.Addr,
-		Password: opt.Password,
-		DB:       opt.DB,
+		Addr:       opt.Addr,
+		Password:   opt.Password,
+		DB:         opt.DB,
+		MaxRetries: 3,
 	})
 	if err != nil {
 		fmt.Println("err:", err)
 		os.Exit(0)
 	}
 }
-
 func main() {
 	//http router config
 	router := httprouter.New()
