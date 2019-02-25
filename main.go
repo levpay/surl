@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
-	"log"
 
+	"github.com/go-redis/redis"
 	"github.com/julienschmidt/httprouter"
 	cli "github.com/levpay/surl/redis"
-	redis "gopkg.in/redis.v5"
 )
 
 var client *cli.Client
@@ -28,16 +28,16 @@ func init() {
 	}
 	opt, err := redis.ParseURL(REDIS_URL)
 	client, err = cli.NewClient(&cli.Config{
-		Addr:     opt.Addr,
-		Password: opt.Password,
-		DB:       opt.DB,
+		Addr:       opt.Addr,
+		Password:   opt.Password,
+		DB:         opt.DB,
+		MaxRetries: 3,
 	})
 	if err != nil {
 		fmt.Println("err:", err)
 		os.Exit(0)
 	}
 }
-
 func main() {
 	//http router config
 	router := httprouter.New()
@@ -63,7 +63,7 @@ func handleSet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-        log.Println("body, request: ", err)
+		log.Println("body, request: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -71,7 +71,7 @@ func handleSet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	//struct request json format
 	err = json.Unmarshal(b, resp)
 	if err != nil {
-        log.Println("json to struct: ", err)
+		log.Println("json to struct: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -79,7 +79,7 @@ func handleSet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if err == cli.ErrKeyNotFound {
 		resp.Short, err = client.Set(resp.URL)
 		if err != nil {
-        	log.Println("set redis client: ", err)
+			log.Println("set redis client: ", err)
 			http.Error(w, err.Error(), 500)
 			return
 		}
@@ -90,7 +90,7 @@ func handleSet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 	e, err := json.Marshal(resp)
 	if err != nil {
-        log.Println("struct to json: ", err)
+		log.Println("struct to json: ", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}

@@ -6,8 +6,8 @@ import (
 	"math/rand"
 	u "net/url"
 
-    "github.com/rs/xid"
 	"github.com/go-redis/redis"
+	"github.com/rs/xid"
 )
 
 var (
@@ -21,18 +21,20 @@ type Client struct {
 
 //Custom config
 type Config struct {
-	Addr     string
-	Password string
-	DB       int
+	Addr       string
+	Password   string
+	DB         int
+	MaxRetries int
 }
 
 //create redis client
 func NewClient(config *Config) (*Client, error) {
 
 	cli := redis.NewClient(&redis.Options{
-		Addr:     config.Addr,
-		Password: config.Password,
-		DB:       0, //DEFAULT
+		Addr:       config.Addr,
+		Password:   config.Password,
+		DB:         0, //DEFAULT
+		MaxRetries: config.MaxRetries,
 	})
 
 	client := &Client{cli}
@@ -77,10 +79,10 @@ func (client *Client) Set(url string) (string, error) {
 		return "", ErrInvalidURL
 	}
 
-    cli := client.cli
-    guid := xid.New()
-    //decode value, shorten url
-    val := guid.String()
+	cli := client.cli
+	guid := xid.New()
+	//decode value, shorten url
+	val := guid.String()
 
 	//set key-value to redis client
 	err = cli.Set(val, url, 0).Err() //set no expire-time
