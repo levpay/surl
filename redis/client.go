@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	u "net/url"
+	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/rs/xid"
@@ -85,7 +86,7 @@ func (client *Client) Set(url string) (string, error) {
 	val := guid.String()
 
 	//set key-value to redis client
-	err = cli.Set(val, url, 0).Err() //set no expire-time
+	err = cli.Set(val, url, 10*24*time.Hour).Err() //set expire-time to 10 days
 
 	if err != nil {
 		return "", err
